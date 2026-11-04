@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simple Calculator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #202631;
+      background: #f3f5f8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    main {
+      width: min(100%, 420px);
+      padding: 32px;
+      background: #fff;
+      border: 1px solid #e1e5eb;
+      border-radius: 16px;
+      box-shadow: 0 12px 36px rgb(31 42 58 / 8%);
+    }
+
+    h1 { margin: 0 0 8px; font-size: 1.65rem; }
+    .intro { margin: 0 0 24px; color: #626c7a; }
+    .fields { display: grid; gap: 16px; }
+
+    label { display: grid; gap: 7px; font-weight: 600; }
+
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #cbd2dc;
+      border-radius: 8px;
+      font: inherit;
+    }
+
+    input:focus { outline: 3px solid #cfe2ff; border-color: #3978d4; }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 8px;
+      background: #245fbd;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { background: #194e9f; }
+    button:focus-visible { outline: 3px solid #9fc5ff; outline-offset: 3px; }
+
+    #result {
+      min-height: 1.5em;
+      margin: 20px 0 0;
+      font-size: 1.1rem;
+      font-weight: 650;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Simple Calculator</h1>
+    <p class="intro">Enter two numbers to add them together.</p>
+
+    <form id="calculator">
+      <div class="fields">
+        <label for="first-number">First number</label>
+        <input id="first-number" name="firstNumber" type="number" step="any" required>
+
+        <label for="second-number">Second number</label>
+        <input id="second-number" name="secondNumber" type="number" step="any" required>
+      </div>
+      <button type="submit">Compute</button>
+    </form>
+
+    <p id="result" aria-live="polite"></p>
+  </main>
+
+  <script>
+    // Replace this function to implement a different calculation.
+    function calculate(firstNumber, secondNumber) {
+      return firstNumber + secondNumber;
+    }
+
+    const form = document.querySelector("#calculator");
+    const result = document.querySelector("#result");
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const firstNumber = Number(form.elements.firstNumber.value);
+      const secondNumber = Number(form.elements.secondNumber.value);
+      result.textContent = `Result: ${calculate(firstNumber, secondNumber)}`;
+    });
+  </script>
+</body>
+</html>
