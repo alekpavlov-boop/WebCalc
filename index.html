@@ -6,10 +6,12 @@
   <title>Simple Calculator</title>
   <style>
     :root {
-      color-scheme: light;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #202631;
-      background: #f3f5f8;
+      color-scheme: dark;
+      font-family: "Courier New", ui-monospace, Menlo, Consolas, monospace;
+      --green: #00ff41;
+      --green-mid: #00c832;
+      --green-dark: #003b00;
+      color: var(--green);
     }
 
     * { box-sizing: border-box; }
@@ -19,62 +21,203 @@
       margin: 0;
       display: grid;
       place-items: center;
-      padding: 24px;
+      padding: 24px 16px;
+      overflow-x: hidden;
+      background: #000;
+    }
+
+    /* Falling green code */
+    #rain {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* Burst + cursor glyphs */
+    #fx {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Faint CRT scanlines over everything */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgb(0 0 0 / 0%) 0px,
+        rgb(0 0 0 / 0%) 2px,
+        rgb(0 0 0 / 25%) 3px
+      );
     }
 
     main {
-      width: min(100%, 420px);
+      position: relative;
+      z-index: 1;
+      width: min(100%, 440px);
       padding: 32px;
-      background: #fff;
-      border: 1px solid #e1e5eb;
-      border-radius: 16px;
-      box-shadow: 0 12px 36px rgb(31 42 58 / 8%);
+      border: 1px solid var(--green);
+      border-radius: 6px;
+      background: rgb(0 10 0 / 82%);
+      box-shadow:
+        0 0 20px rgb(0 255 65 / 45%),
+        inset 0 0 30px rgb(0 255 65 / 12%);
+      animation: power-on 1.2s ease-out both;
     }
 
-    h1 { margin: 0 0 8px; font-size: 1.65rem; }
-    .intro { margin: 0 0 24px; color: #626c7a; }
-    .fields { display: grid; gap: 16px; }
+    @keyframes power-on {
+      0%   { opacity: 0; transform: scaleY(0.02); filter: brightness(3); }
+      40%  { opacity: 1; transform: scaleY(0.02); }
+      70%  { transform: scaleY(1); filter: brightness(2); }
+      100% { transform: scaleY(1); filter: brightness(1); }
+    }
 
-    label { display: grid; gap: 7px; font-weight: 600; }
+    h1 {
+      position: relative;
+      margin: 0 0 8px;
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--green);
+      text-shadow: 0 0 6px var(--green), 0 0 18px var(--green-mid);
+      animation: flicker 5s infinite;
+    }
+
+    /* Glitch copies of the title */
+    h1::before,
+    h1::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      opacity: 0.8;
+    }
+    h1::before { color: #b6ffb6; animation: glitch-a 3s infinite steps(1); }
+    h1::after  { color: var(--green-dark); animation: glitch-b 3s infinite steps(1); }
+
+    @keyframes glitch-a {
+      0%, 88%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+      90% { clip-path: inset(10% 0 60% 0); transform: translateX(-4px); }
+      94% { clip-path: inset(50% 0 20% 0); transform: translateX(3px); }
+    }
+    @keyframes glitch-b {
+      0%, 89%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+      91% { clip-path: inset(60% 0 10% 0); transform: translateX(4px); }
+      95% { clip-path: inset(20% 0 55% 0); transform: translateX(-3px); }
+    }
+    @keyframes flicker {
+      0%, 19%, 21%, 62%, 64%, 100% { opacity: 1; }
+      20%, 63% { opacity: 0.55; }
+    }
+
+    .intro {
+      margin: 0 0 24px;
+      color: var(--green-mid);
+      min-height: 1.3em;
+    }
+    .intro::after {
+      content: "█";
+      margin-left: 2px;
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .fields { display: grid; gap: 14px; }
+
+    label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+    label::before { content: "> "; color: var(--green-mid); }
 
     input {
       width: 100%;
       padding: 11px 12px;
-      border: 1px solid #cbd2dc;
-      border-radius: 8px;
+      border: 1px solid var(--green-mid);
+      border-radius: 3px;
+      background: #000;
+      color: var(--green);
+      caret-color: var(--green);
       font: inherit;
+      font-size: 1.15rem;
+      text-shadow: 0 0 6px var(--green);
+      transition: box-shadow 0.2s, border-color 0.2s;
     }
-
-    input:focus { outline: 3px solid #cfe2ff; border-color: #3978d4; }
+    input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 1px var(--green), 0 0 18px rgb(0 255 65 / 60%);
+    }
 
     button {
+      position: relative;
+      overflow: hidden;
       width: 100%;
-      margin-top: 20px;
-      padding: 12px 16px;
-      border: 0;
-      border-radius: 8px;
-      background: #245fbd;
-      color: #fff;
+      margin-top: 22px;
+      padding: 13px 16px;
+      border: 1px solid var(--green);
+      border-radius: 3px;
+      background: transparent;
+      color: var(--green);
       font: inherit;
+      font-size: 1.05rem;
       font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-shadow: 0 0 6px var(--green);
       cursor: pointer;
+      box-shadow: 0 0 12px rgb(0 255 65 / 35%);
+      transition: background 0.15s, color 0.15s, box-shadow 0.2s;
     }
-
-    button:hover { background: #194e9f; }
-    button:focus-visible { outline: 3px solid #9fc5ff; outline-offset: 3px; }
+    button:hover {
+      background: var(--green);
+      color: #000;
+      text-shadow: none;
+      box-shadow: 0 0 28px var(--green);
+    }
+    button:active { transform: scale(0.98); }
+    button:focus-visible { outline: 2px dashed var(--green); outline-offset: 4px; }
 
     #result {
       min-height: 1.5em;
-      margin: 20px 0 0;
-      font-size: 1.1rem;
-      font-weight: 650;
+      margin: 22px 0 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-align: center;
+      color: #d4ffd4;
+      text-shadow: 0 0 8px var(--green), 0 0 24px var(--green);
+    }
+
+    @media (max-width: 420px) {
+      main { padding: 24px 18px; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 <body>
+  <canvas id="rain"></canvas>
+  <canvas id="fx"></canvas>
+
   <main>
-    <h1>Simple Calculator</h1>
-    <p class="intro">Enter two numbers to divide the first by the second.</p>
+    <h1 data-text="Simple Calculator">Simple Calculator</h1>
+    <p class="intro" id="intro">Enter two numbers to divide the first by the second.</p>
 
     <form id="calculator">
       <div class="fields">
@@ -101,13 +244,168 @@
 
     const form = document.querySelector("#calculator");
     const result = document.querySelector("#result");
+    const intro = document.querySelector("#intro");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Half-width katakana, digits and symbols for the code rain
+    const GLYPHS =
+      "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789+-*=<>:";
+    const randomGlyph = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+
+    // ---------- Background: falling green code ----------
+    const rain = document.querySelector("#rain");
+    const rctx = rain.getContext("2d");
+    const FONT_SIZE = 18;
+    let columns = [];
+    let surge = 0; // speeds the rain up briefly after Compute
+
+    function resizeRain() {
+      rain.width = window.innerWidth;
+      rain.height = window.innerHeight;
+      const count = Math.ceil(rain.width / FONT_SIZE);
+      columns = Array.from({ length: count }, () => ({
+        // Position is measured in rows; start some on screen, some just above
+        y: Math.random() * (rain.height / FONT_SIZE) * 1.5 - (rain.height / FONT_SIZE) * 0.5,
+        speed: 0.4 + Math.random() * 0.8,
+      }));
+      rctx.fillStyle = "#000";
+      rctx.fillRect(0, 0, rain.width, rain.height);
+    }
+    window.addEventListener("resize", resizeRain);
+    resizeRain();
+
+    function drawRain() {
+      // Translucent black layer leaves fading trails behind each character
+      rctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+      rctx.fillRect(0, 0, rain.width, rain.height);
+      rctx.font = `${FONT_SIZE}px monospace`;
+
+      columns.forEach((col, i) => {
+        const x = i * FONT_SIZE;
+        const y = col.y * FONT_SIZE;
+        // Bright white-green leading character
+        rctx.fillStyle = "#d4ffd4";
+        rctx.shadowColor = "#00ff41";
+        rctx.shadowBlur = 8;
+        rctx.fillText(randomGlyph(), x, y);
+        // Green character just behind it
+        rctx.fillStyle = "#00ff41";
+        rctx.shadowBlur = 0;
+        rctx.fillText(randomGlyph(), x, y - FONT_SIZE);
+
+        col.y += col.speed * (1 + surge);
+        if (y > rain.height && Math.random() > 0.975) {
+          col.y = 0;
+          col.speed = 0.4 + Math.random() * 0.8;
+        }
+      });
+      surge *= 0.96;
+    }
+
+    if (reduceMotion) {
+      // Draw a still frame instead of animating
+      for (let i = 0; i < 60; i++) drawRain();
+    } else {
+      (function loop() {
+        drawRain();
+        requestAnimationFrame(loop);
+      })();
+    }
+
+    // ---------- Foreground: glyph bursts + cursor trail ----------
+    const fx = document.querySelector("#fx");
+    const fctx = fx.getContext("2d");
+    let particles = [];
+
+    function resizeFx() {
+      fx.width = window.innerWidth * devicePixelRatio;
+      fx.height = window.innerHeight * devicePixelRatio;
+      fctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    window.addEventListener("resize", resizeFx);
+    resizeFx();
+
+    function spawn(x, y, count, speed, life, size) {
+      if (reduceMotion) return;
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const v = Math.random() * speed;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * v,
+          vy: Math.sin(angle) * v,
+          life, maxLife: life,
+          size: size * (0.7 + Math.random() * 0.6),
+          glyph: randomGlyph(),
+        });
+      }
+    }
+
+    (function fxLoop() {
+      fctx.clearRect(0, 0, fx.width, fx.height);
+      particles = particles.filter((p) => p.life > 0);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.12;
+        p.vx *= 0.98;
+        p.life--;
+        if (Math.random() < 0.1) p.glyph = randomGlyph();
+        fctx.globalAlpha = p.life / p.maxLife;
+        fctx.fillStyle = "#00ff41";
+        fctx.shadowColor = "#00ff41";
+        fctx.shadowBlur = 10;
+        fctx.font = `${p.size}px monospace`;
+        fctx.fillText(p.glyph, p.x, p.y);
+      }
+      fctx.globalAlpha = 1;
+      requestAnimationFrame(fxLoop);
+    })();
+
+    window.addEventListener("pointermove", (e) => spawn(e.clientX, e.clientY, 1, 1.5, 35, 14));
+
+    // ---------- Typing effect for the intro line ----------
+    function typeOut(el, text, speed = 35) {
+      if (reduceMotion) { el.textContent = text; return; }
+      el.textContent = "";
+      let i = 0;
+      const timer = setInterval(() => {
+        el.textContent = text.slice(0, ++i);
+        if (i >= text.length) clearInterval(timer);
+      }, speed);
+    }
+    setTimeout(() => typeOut(intro, intro.textContent), 900);
+
+    // ---------- "Decode" effect for the result ----------
+    function decode(finalText) {
+      if (reduceMotion) { result.textContent = finalText; return; }
+      const duration = 900;
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const locked = Math.floor(finalText.length * t);
+        let text = finalText.slice(0, locked);
+        for (let i = locked; i < finalText.length; i++) {
+          text += finalText[i] === " " ? " " : randomGlyph();
+        }
+        result.textContent = text;
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
 
       const firstNumber = Number(form.elements.firstNumber.value);
       const secondNumber = Number(form.elements.secondNumber.value);
-      result.textContent = `Result: ${calculate(firstNumber, secondNumber)}`;
+      const answer = calculate(firstNumber, secondNumber);
+
+      decode(`Result: ${answer}`);
+      surge = 4;
+
+      const rect = form.querySelector("button").getBoundingClientRect();
+      spawn(rect.left + rect.width / 2, rect.top + rect.height / 2, 80, 9, 80, 18);
     });
   </script>
 </body>
